@@ -1,5 +1,5 @@
 '''    
-    Lançar erros específicos quando um caractere inválido é encontrado, fornecendo informações detalhadas sobre a localização do erro no código-fonte.
+    Launches a error in case of a lexical error, indicating the unexpected character and its position (line and column) in the source code.
 '''
 class LexicalError(Exception):
     def __init__(self, char, line, column):

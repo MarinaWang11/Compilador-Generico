@@ -1,12 +1,12 @@
 ''' 
-    A cada iteração do while, o código tenta casar o texto na posição atual com alguma regra (Expressão Regular):
+    In each iteration of the while loop, the code tries to match the text at the current position with some rule (Regular Expression):
 
-        1) Se encontrar um padrão válido, ele extrai o lexema, calcula o tamanho, cria um objeto Token, e avança o 
-           ponteiro de acordo com o comprimentodo lexema lido. 
+        1) If finds an match, it extracts the lexeme, calculates the size, creates a Token object, and advances the 
+           pointer according to the length of the read lexeme. 
 
-        2) Se o ponteiro parar em um caractere que não bate com nenhuma regra (mismatch), ou identificar um comentário  
-           de bloco/string/char não fechado, o erro é formatado com sua localização exata, adicionado a uma lista de 
-           erros, e o ponteiro é forçado a avançar para fazer a análise do restante do código.
+        2) If the pointer stops at a character that doesn't match any rule (mismatch), or identifies an unclosed comment  
+           of block/string/char, the error is formatted with its exact location, added to a list of 
+           errors, and the pointer is forced to advance to continue the analysis of the rest of the code.
 '''
 
 import re
@@ -14,25 +14,23 @@ import re
 from lexerScanner.tokenClass import Token
 from lexerScanner.lexicalError import LexicalError
 
-
 class Lexer:
     def __init__(self, source_code):
-        self.source_code = source_code
+        self.source_code = source_code 
         self.tokens = []
         self.errors = []
         self.current_id = 1
-        self.position = 0  
+        self.position = 0  #pointer to current position in source code
         self.line = 1
         self.column = 1
         
-        
-        #Compila cada regex individualmente, a ordem importa
-        
+        #Compiles each regex individually, the order matters (e.g., comments before operators to avoid conflicts)
+
         rules = [
             (r'/\*[\s\S]*?\*/', 'COMMENT_MULTI'),
             (r'/\*[\s\S]*', 'UNCLOSED_COMMENT'), 
             (r'//.*', 'COMMENT_SINGLE'),
-            (r'\b(if|for|int|bool|string|float|char)\b', 'RESERVED_WORD'),
+            (r'\b(if|for|int|bool|string|float|char|return)\b', 'RESERVED_WORD'),
             (r'\b[a-zA-Z_][a-zA-Z0-9_]*\b', 'IDENTIFIER'),
             (r'\b\d+\.\d+\b', 'FLOAT_LIT'),
             (r'\b\d+\b', 'INT_LIT'),
@@ -42,20 +40,20 @@ class Lexer:
             (r'[{}();]', 'DELIMITER'),
             (r'\n', 'NEWLINE'),
             (r'[ \t]+', 'WHITESPACE'),
-            (r'.', 'MISMATCH') #Caractere inválido
+            (r'.', 'MISMATCH') #invalid
         ]
         
-        self.rules_compiled = [(re.compile(pattern), tag) for pattern, tag in rules]
+        self.rules_compiled = [(re.compile(pattern), tag) for pattern, tag in rules] 
 
     def analyze(self):
-        while self.position < len(self.source_code):
+        while self.position < len(self.source_code): 
             match_found = False
             
             for regex, token_class in self.rules_compiled:
-                match = regex.match(self.source_code, self.position)
+                match = regex.match(self.source_code, self.position) #try to match the regex at the current position
                 
-                if match:
-                    lexeme = match.group(0)
+                if match: 
+                    lexeme = match.group(0) #text matched by the regex
 
                     if token_class == 'NEWLINE':
                         self.line += 1
@@ -70,9 +68,10 @@ class Lexer:
                         if newlines > 0:
                             self.line += newlines
 
-                            #Calcula a col da última linha do comentário
+                            #calculate column position after the last newline in the comment
                             last_newline_idx = lexeme.rfind('\n') 
                             self.column = len(lexeme) - last_newline_idx
+
                         else:
                             self.column += len(lexeme)
 
@@ -95,13 +94,13 @@ class Lexer:
                         self.current_id += 1
                         self.column += len(lexeme)
                     
-                    # Avança o ponteiro
-                    self.position = match.end()
-                    match_found = True
+                    #Advance the position pointer to the end of the matched lexeme
+                    self.position = match.end() 
+                    match_found = True 
 
-                    break #nova posicao
+                    break #new position
             
-            #Trava de segurança caso o regex falhe 
+            #Security lock if none of the rules match
             if not match_found:
                 char_problem = self.source_code[self.position]
 

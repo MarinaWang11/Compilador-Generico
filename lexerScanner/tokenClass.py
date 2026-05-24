@@ -1,5 +1,5 @@
 '''
-    Um token é a menor unidade de significado em um código-fonte, possuindo 5 características de cada símbolo validado.
+    A token is the basic unit of a programming language, representing a meaningful sequence of characters in the source code. 
 '''
 
 class Token:

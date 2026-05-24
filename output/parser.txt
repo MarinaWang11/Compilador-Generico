@@ -1,0 +1,7 @@
+RELATÓRIO DE ERROS SINTÁTICOS - TOTAL: 5 
+
+ -> Erro Sintático [Linha 5, Col 5]: Esperava ';', mas encontrou 'for'. Esperado ';' após a declaração.
+ -> Erro Sintático [Linha 5]: Operação inválida para o identificador 'i'.
+ -> Erro Sintático [Linha 5, Col 32]: Esperava ';', mas encontrou ')'. Esperado ';' após comando.
+ -> Erro Sintático [Linha 9, Col 5]: Esperado valor, variável ou '(', mas encontrou '}'.
+ -> Erro Sintático [Linha 15, Col 1]: Esperado valor, variável ou '(', mas encontrou '}'.

@@ -29,5 +29,9 @@ ___
 
 ### Regras de Saída (output)
 1.  Analisador Léxico:
-    * **Sucesso:** Se o código não contiver erros léxicos, uma tabela formatada com todos os tokens será impressa no terminal e salva em arquivo.
+    * **Sucesso:** Se o código não contiver erros léxicos, uma tabela formatada com todos os tokens será impressa no terminal e salva em arquivo .txt.
     * **Falha:** Se o código contiver símbolos inválidos, imprimirá no terminal uma lista detalhada com todos os erros léxicos encontrados, apontando a localização exata de cada um.
+
+2. Analisador Sintático
+    * **Sucesso:** Se o código não contiver erros sintáticos, uma mensagem de sucesso será impressa no terminal e salva em arquivo .txt.
+    * **Falha:** Se o código contiver erros, imprimirá no terminal uma lista detalhada com todos os erros sintáticos encontrados, apontando a localização exata de cada um e o que era esperado (Panic Mode).
