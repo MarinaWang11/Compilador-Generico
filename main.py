@@ -7,16 +7,21 @@
     
     3) Análise Sintática: A lista de tokens é passada para a classe Parser, onde o método parse() é chamado. Ele verifica a estrutura do código 
                           de acordo com as regras gramaticais definidas, e retorna uma lista de erros sintáticos, caso existam.
+    
+    4) Análise Semântica: Durante a análise sintática, o Parser também realiza verificações semânticas, como checagem de tipos e uso de variáveis. 
+                          Ele mantém uma tabela de símbolos para rastrear declarações e usos de variáveis, e gera relat
 
-    4) Saída e Validação: Se o código fonte contiver erros léxicos, o programa exibe o relatório de erro detalhados no terminal
+    5) Saída e Validação: Se o código fonte contiver erros léxicos, o programa exibe o relatório de erro detalhados no terminal
                           e bloqueia a geração do arquivo de saída. Caso todo o código esteja correto, a tabela de tokens estruturada é 
-                          exibida no terminal e gravada permanentemente no arquivo "output/lexer_output.txt". Já se contiver erros sintáticos,
-                          o o programa exibe o relatório de erro detalhados no terminal e gera o arquivo de saída.
+                          exibida no terminal e gravada permanentemente no arquivo "output/lexer_output.txt", ademais da tabela de símbolos 
+                          do semântico que é gerada durante a análise e gravada no arquivo "output/symbol_table.txt". Já se contiver erros 
+                          sintáticos e semânticos, o programa exibe o relatório de erro detalhados no terminal e gera o arquivo de saída 
+                          "output/parser.txt".
 '''
 
 import sys
 from lexerScanner.lexer import Lexer
-from parser.parser import Parser
+from semanticAnalyzer.semantic import Parser, SymbolTable
 
 
 if __name__ == "__main__":
@@ -31,7 +36,7 @@ if __name__ == "__main__":
 
         print("Certifique-se de criar o arquivo e tentar novamente.")
 
-        sys.exit(1) #Interrompe o programa se o arquivo não existir
+        sys.exit(1) 
 
     analisador = Lexer(codigo_c)
 
@@ -47,9 +52,10 @@ if __name__ == "__main__":
                 print(f" -> {e}")
             
             print("\n[AVISO] Arquivo de tokens não gerado devido a erros no código fonte.")
-        
+            sys.exit(1)
+
         else:
-            print(f"[LEXER] FORAM ENCONTRADOS {len(lista_tokens)} TOKENS")
+            print(f"[LEXER]")
 
             header = f"{'ID':<5} | {'LEXEMA':<15} | {'CLASSE':<15} | {'LINHA':<7} | {'COLUNA':<7}"
             separator = "-" * len(header)
@@ -76,28 +82,72 @@ if __name__ == "__main__":
     analisador_sintatico = Parser(lista_tokens)
     
     try:
-        erros_sintaticos = analisador_sintatico.parse()
+        resultado_analise = analisador_sintatico.parse()
+        
+        erros_sintaticos = resultado_analise['syntax_errors']
+        erros_semanticos = resultado_analise['semantic_errors']
+        avisos_semanticos = resultado_analise['semantic_warnings']
+        tabela_simbolos = resultado_analise['symbol_table']
 
-        if erros_sintaticos:
-            print(f"\n[PARSER] FORAM ENCONTRADOS {len(erros_sintaticos)} ERROS SINTÁTICOS:")
+        tem_erros_fatais = len(erros_sintaticos) > 0 or len(erros_semanticos) > 0
 
-            with open("output/parser.txt", "w", encoding="utf-8") as arquivo_erros:
-                arquivo_erros.write(f"RELATÓRIO DE ERROS SINTÁTICOS - TOTAL: {len(erros_sintaticos)} \n\n")
-                
-                for e in erros_sintaticos:
-                    print(f" -> {e}")
-                    arquivo_erros.write(f" -> {e}\n")
-
-            print("\n[AVISO] Compilação abortada, os erros foram salvos em 'output/parser_output.txt'")
-
-        else:
-            print("\n[SUCESSO] Análise sintática concluída sem erros.")
+        if tem_erros_fatais:
+            print("\n[ERRO] Compilação falhou!")
             
-            # Abre o arquivo para registrar o sucesso da compilação sintática
-            with open("output/parser_output.txt", "w", encoding="utf-8") as arquivo_sucesso:
-                arquivo_sucesso.write("STATUS: COMPILAÇÃO BEM-SUCEDIDA\n")
+            with open("output/parser.txt", "w", encoding="utf-8") as arquivo_parser:
+                if erros_sintaticos:
+                    titulo = f"\n--- ERROS SINTÁTICOS ({len(erros_sintaticos)}) ---"
+                    print(titulo)
+                    arquivo_parser.write(titulo + "\n")
+                    for e in erros_sintaticos: 
+                        print(f" -> {e}")
+                        arquivo_parser.write(f" -> {e}\n")
+                        
+                if erros_semanticos:
+                    titulo = f"\n--- ERROS SEMÂNTICOS ({len(erros_semanticos)}) ---"
+                    print(titulo)
+                    arquivo_parser.write(titulo + "\n")
+                    for e in erros_semanticos: 
+                        print(f" -> {e}")
+                        arquivo_parser.write(f" -> {e}\n")
+
+            print("\n[AVISO] Arquivo 'output/parser.txt' gerado com os erros.")
+
+        
+        else:
+            print("\n[SUCESSO]")
+            with open("output/parser.txt", "w", encoding="utf-8") as arquivo_parser:
+                arquivo_parser.write("[SUCESSO] COMPILAÇÃO BEM-SUCEDIDA!\n\n")
+            
+        if avisos_semanticos:
+            print(f"\n[WARNINGS] ")
+            for aviso in avisos_semanticos:
+                print(f" -> {aviso}")
+
+        print("\n--- TABELA DE SÍMBOLOS GERADA ---")
+        
+        header_sym = f"{'ID':<12} | {'TIPO':<9} | {'DECLARAÇÃO':<12} | {'INICIALIZADA':<13} | {'VALOR':<10} | {'USADA':<5}"
+        sep_sym = "-" * len(header_sym)
+        
+        with open("output/symbol_table.txt", "w", encoding="utf-8") as arq_sym:
+            print(header_sym)
+            print(sep_sym)
+            arq_sym.write(header_sym + "\n" + sep_sym + "\n")
+            
+            for sym in tabela_simbolos:
+                decl = f"{sym['decl_line']} x {sym['decl_col']}"
+                inic = sym['init_pos'] if sym['init_pos'] != ' ' else ("True" if sym['initialized'] else "False")
+                usada = "True" if sym['used'] else "False"
+                
+                valor = sym['value']
+                
+                linha = f"{sym['name']:<12} | {sym['type']:<9} | {decl:<12} | {inic:<13} | {valor:<10} | {usada:<5}"
+                
+                print(linha)
+                arq_sym.write(linha + "\n")
+                
+        print("\n[INFO] Tabela de Símbolos salva em 'output/symbol_table.txt'.")
 
     except Exception as e:
-        print(f"Erro inesperado durante a análise sintática: {e}")
-
+        print(f"Erro inesperado durante a análise semântica: {e}")
     

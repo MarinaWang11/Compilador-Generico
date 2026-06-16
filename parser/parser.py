@@ -40,6 +40,7 @@ class Parser:
             self.current += 1
         return self.previous()
 
+
     def check(self, token_class, lexeme=None): 
         if self.is_end_token_list():
             return False
@@ -50,12 +51,14 @@ class Parser:
         
         if lexeme: #checks if lexeme and class match
             return (token['class'].upper() == token_class.upper() or token['class'].upper() == target_class) and token['lexeme'] == lexeme
+       
         return token['class'].upper() == token_class.upper() or token['class'].upper() == target_class
 
     def match(self, token_class, lexeme=None): 
         if self.check(token_class, lexeme):
             self.advance()
             return True
+        
         return False
 
     def consume(self, token_class, lexeme, message): 
@@ -63,6 +66,7 @@ class Parser:
             return self.advance()
         
         token = self.peek_lookahead()
+        
         if token:
             error_msg = f"Erro Sintático [Linha {token['line']}, Col {token['column']}]: Esperava '{lexeme if lexeme else token_class}', mas encontrou '{token['lexeme']}'. {message}"
         else:

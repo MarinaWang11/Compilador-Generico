@@ -36,8 +36,8 @@ class Lexer:
             (r'\b\d+\b', 'INT_LIT'),
             (r'".*?"', 'STRING_LIT'),
             (r"'.'", 'CHAR_LIT'),
-            (r'\+\+|--|==|<=|>=|&&|\|\||[+\-*/<>=!]', 'OPERATOR'),
-            (r'[{}();]', 'DELIMITER'),
+            (r'\+\+|--|==|<=|>=|\+=|-= |&&|\|\||[+\-*/<>=!]', 'OPERATOR'),
+            (r'[{}()\[\];,]', 'DELIMITER'),
             (r'\n', 'NEWLINE'),
             (r'[ \t]+', 'WHITESPACE'),
             (r'.', 'MISMATCH') #invalid

@@ -1,0 +1,11 @@
+ID           | TIPO      | DECLARAÇÃO   | INICIALIZADA  | VALOR      | USADA
+----------------------------------------------------------------------------
+soma         | float     | 2 x 7        | True          |            | True 
+a            | int       | 2 x 16       | Parâmetro     | Input      | True 
+b            | int       | 2 x 23       | Parâmetro     | Input      | True 
+main         | int       | 8 x 5        | True          |            | False
+contador     | int       | 9 x 9        | 9 x 9         | 0          | True 
+valor        | int       | 10 x 9       | 20 x 5        | Expr       | True 
+i            | int       | 12 x 13      | 12 x 13       | 0          | True 
+texto        | string    | 18 x 12      | 18 x 12       | "fim"      | True 
+c            | char      | 19 x 10      | 19 x 10       | Expr       | True 
